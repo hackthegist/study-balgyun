@@ -98,82 +98,71 @@ function placesSearchCB(data:any, status:any, pagination:any) {
       listStr = ''
 
     // 검색 결과 목록에 추가된 항목들을 제거합니다
-    removeAllChildNods(listEl)
+    removeAllChildNods(listEl);
 
-    removeMarker()
+    removeMarker();
 
     for (var i = 0; i < places.length; i++) {
       // 마커를 생성하고 지도에 표시합니다
-      var placePosition = new window.kakao.maps.LatLng(
-          places[i].y,
-          places[i].x
-        ),
+      var placePosition = new window.kakao.maps.LatLng(places[i].y, places[i].x),
         marker = addMarker(placePosition, i),
-        itemEl = getListItem(i, places[i]) // 검색 결과 항목 Element를 생성합니다
+        itemEl = getListItem(i, places[i]); // 검색 결과 항목 Element를 생성합니다
 
       // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
       // LatLngBounds 객체에 좌표를 추가합니다
-      bounds.extend(placePosition)
+      bounds.extend(placePosition);
 
       // 마커와 검색결과 항목에 mouseover 했을때
       // 해당 장소에 인포윈도우에 장소명을 표시합니다
       // mouseout 했을 때는 인포윈도우를 닫습니다
-      ;(function(marker, title) {
+      (function(marker, title) {
         window.kakao.maps.event.addListener(marker, 'mouseover', function() {
-          displayInfowindow(marker, title)
+          displayInfowindow(marker, title);
         })
 
         window.kakao.maps.event.addListener(marker, 'mouseout', function() {
-          infowindow.close()
+          infowindow.close();
         })
 
         itemEl.onmouseover = function() {
-          displayInfowindow(marker, title)
+          displayInfowindow(marker, title);
         }
 
         itemEl.onmouseout = function() {
-          infowindow.close()
+          infowindow.close();
         }
-      })(marker, places[i].place_name)
+      })(marker, places[i].place_name);
 
-      fragment.appendChild(itemEl)
+      fragment.appendChild(itemEl);
     }
 
     // 검색결과 항목들을 검색결과 목록 Elemnet에 추가합니다
     if (listEl != null) {
-      listEl.appendChild(fragment)
+      listEl.appendChild(fragment);
     }
     if (menuEl !== null) {
-      menuEl.scrollTop = 0
+      menuEl.scrollTop = 0;
     }
 
-    map.setBounds(bounds)
+    map.setBounds(bounds);
 }
 
 
   // 검색결과 항목을 Element로 반환하는 함수입니다
   function getListItem(index: any, places: any) {
     var el = document.createElement('li'),
-      itemStr =
-        '<span class="markerbg marker_' +
-        (index + 1) +
-        '"></span>' +
+      itemStr ='<span class="markerbg marker_' +(index + 1) +'"></span>' +
         '<div class="info">' +
-        '   <h5>' +
-        places.place_name +
-        '</h5>'
+        '   <h5>' + places.place_name +'</h5>';
 
     if (places.road_address_name) {
-      itemStr +=
-        '    <span>' +
-        places.road_address_name +
-        '</span>' +
-        '   <span class="jibun gray">' +
-        places.address_name +
-        '</span>'
+      itemStr +='    <span>' +places.road_address_name +'</span>' +
+      '   <span class="jibun gray">' +places.address_name +'</span>';
     } else {
-      itemStr += '    <span>' + places.address_name + '</span>'
+      itemStr += '    <span>' + places.address_name + '</span>';
     }
+    el.innerHTML = itemStr;
+    el.className = 'item';
 
     return el;
 }
@@ -213,34 +202,34 @@ function removeMarker() {
   function displayPagination(pagination: any) {
     var paginationEl = document.getElementById('pagination'),
       fragment = document.createDocumentFragment(),
-      i
+      i;
 
     // 기존에 추가된 페이지번호를 삭제합니다
     if (paginationEl !== null) {
       while (paginationEl.hasChildNodes()) {
         if (paginationEl.lastChild !== null) {
-          paginationEl.removeChild(paginationEl.lastChild)
+          paginationEl.removeChild(paginationEl.lastChild);
         }
       }
 
       for (i = 1; i <= pagination.last; i++) {
-        var el = document.createElement('a')
-        el.href = '#'
-        el.innerHTML = i + ''
+        var el = document.createElement('a');
+        el.href = '#';
+        el.innerHTML = i + '';
 
         if (i === pagination.current) {
-          el.className = 'on'
+          el.className = 'on';
         } else {
           el.onclick = (function(i) {
             return function() {
-              pagination.gotoPage(i)
+              pagination.gotoPage(i);
             }
-          })(i)
+          })(i);
         }
 
-        fragment.appendChild(el)
+        fragment.appendChild(el);
       }
-      paginationEl.appendChild(fragment)
+      paginationEl.appendChild(fragment);
     }
   }
 
@@ -249,14 +238,14 @@ function removeMarker() {
   function displayInfowindow(marker: any, title: any) {
     var content = '<div style="padding:5px;z-index:1;">' + title + '</div>'
 
-    infowindow.setContent(content)
-    infowindow.open(map, marker)
+    infowindow.setContent(content);
+    infowindow.open(map, marker);
   }
 
   // 검색결과 목록의 자식 Element를 제거하는 함수입니다
   function removeAllChildNods(el: any) {
     while (el.hasChildNodes()) {
-      el.removeChild(el.lastChild)
+      el.removeChild(el.lastChild);
     }
 }
 
@@ -274,18 +263,17 @@ function removeMarker() {
         <h2> 나와 가까운 스터디 장소  </h2>
         <h3> 현 주소 : {UserDetailStore.data.city} / {UserDetailStore.data.town} </h3> 
         <div className="map_wrap">
-        <div id="map" css={mapcss}></div>
+        <div id="map"css={mapcss}></div>
         <div id="menu_wrap" className="bg_white">
         <div className="option">
             <div>
                <button onClick={()=> {searchPlaces(1)}}>카페 검색</button> 
                <button onClick={()=> {searchPlaces(2)}}>스터디룸 검색</button>
             </div>
-            </div>
+        </div>
         <hr />
         <ul id="placesList" ></ul>
         <div id="pagination"></div>
-
         </div>
         </div>
         </Display>
