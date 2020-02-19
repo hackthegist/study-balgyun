@@ -5,17 +5,17 @@ import { css, jsx } from '@emotion/core'
 import { Display } from '../Display'
 
 import UserDetailStore from '../../stores/UserDetailStore'
+import './map.css';
 
 declare global {
     interface Window {
         kakao : any;
     }
 }
+let map :any
 
 const MapView = () => {
 
-    let maps :any
-    
     useEffect(() => {
        
         let container = document.getElementById('map');
@@ -23,62 +23,63 @@ const MapView = () => {
             center : new window.kakao.maps.LatLng(33.450701, 126.570667),
             level : 3
         };
-        maps = new window.kakao.maps.Map(container, option);
+
+        map = new window.kakao.maps.Map(container, option);
+
         var geocoder = new window.kakao.maps.services.Geocoder();
+
         geocoder.addressSearch(UserDetailStore.data.city+" "+UserDetailStore.data.town, function( result:any, status:any) {
+
         if (status === window.kakao.maps.services.Status.OK) {
+
         var coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+
         // 결과값으로 받은 위치를 마커로 표시합니다
         var marker = new window.kakao.maps.Marker({
-            map: maps,
+            map: map,
             position: coords
         });
+
         // 인포윈도우로 장소에 대한 설명을 표시합니다
             var infowindow = new window.kakao.maps.InfoWindow({
             content: '<div style="width:150px;text-align:center;padding:6px 0;">현 주소</div>'
         });
-        infowindow.open(maps, marker);
+        infowindow.open(map, marker);
 
         // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
-        maps.setCenter(coords);
+        map.setCenter(coords);
 
-        searchPlaces();
+        //searchPlaces();
+
     }
 }); UserDetailStore.mypage()
 }, [UserDetailStore.data.city, UserDetailStore.data.city])
 
 
- let markers = [];
+let markers: any[] = [];
 
 var ps = new window.kakao.maps.services.Places();  
 var infowindow = new window.kakao.maps.InfoWindow({zIndex:1});
 
 
-
-    function searchPlaces() {
-       
-        //const doc = document.getElementById('keyword');
+    function searchPlaces(idx : number) {
+       if(idx===1){
+            ps.keywordSearch(UserDetailStore.data.city+" "+UserDetailStore.data.town+" 카페", placesSearchCB); 
+       }
+       else  ps.keywordSearch(UserDetailStore.data.city+" "+UserDetailStore.data.town+" 스터디룸", placesSearchCB); 
         
-        // if(doc!==null){
-        //     const keyword = doc.nodeValue
-        //     alert(keyword)
-
-        //     if (keyword===null) {
-        //         alert('키워드를 입력해주세요!');
-        //         return ;
-        //     }
-        ps.keywordSearch("카페", placesSearchCB); 
     }
 
 // 장소검색이 완료됐을 때 호출되는 콜백함수 입니다
 function placesSearchCB(data:any, status:any, pagination:any) {
     if (status === window.kakao.maps.services.Status.OK) {
-        console.log(data)
+
         // 정상적으로 검색이 완료됐으면
         // 검색 목록과 마커를 표출합니다
         displayPlaces(data);
-    } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
 
+        displayPagination(pagination);
+    } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
         alert('검색 결과가 존재하지 않습니다.');
         return;
 
@@ -146,12 +147,11 @@ function displayPlaces(places:any) {
     if(menuEl!==null){
         menuEl.scrollTop = 0;
     }
-
-    maps.setBounds(bounds)
+    map.setBounds(bounds)
 }
 
 // 검색결과 항목을 Element로 반환하는 함수입니다
-function getListItem(index:any, places:any) {
+function getListItem(index: any, places: any) {
 
     var el = document.createElement('li'),
     itemStr = '<span class="markerbg marker_' + (index+1) + '"></span>' +
@@ -176,7 +176,7 @@ function getListItem(index:any, places:any) {
 
 // 마커를 생성하고 지도 위에 마커를 표시하는 함수입니다
 function addMarker(position:any, idx:any) {
-    var imageSrc = 'http://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png', // 마커 이미지 url, 스프라이트 이미지를 씁니다
+    var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png', // 마커 이미지 url, 스프라이트 이미지를 씁니다
         imageSize = new window.kakao.maps.Size(36, 37),  // 마커 이미지의 크기
         imgOptions =  {
             spriteSize : new window.kakao.maps.Size(36, 691), // 스프라이트 이미지의 크기
@@ -189,16 +189,19 @@ function addMarker(position:any, idx:any) {
             image: markerImage 
         });
 
-    marker.setMap(maps); // 지도 위에 마커를 표출합니다
+    marker.setMap(map); // 지도 위에 마커를 표출합니다
     markers.push(marker);  // 배열에 생성된 마커를 추가합니다
 
     return marker;
 }
 
 function removeMarker() {
-    // for ( var i = 0; i < markers.length; i++ ) {
-    //     markers[i].setMap(null);
-    // }   
+   
+     for (var i = 0; i < markers.length; i++ ) {
+         
+          markers[i].setMap(null);
+      }   
+    
     markers = [];
 }
 
@@ -241,8 +244,7 @@ function displayPagination(pagination:any) {
 // 검색결과 목록 또는 마커를 클릭했을 때 호출되는 함수입니다
 // 인포윈도우에 장소명을 표시합니다
     function displayInfowindow(marker:any, title:any) {
-        var content = '<div style="padding:5px;z-index:1;">' + title + '</div>';
-
+        var content = '<div style=" padding:5px; z-index:1;">' + title + '</div>';
         infowindow.setContent(content);
         infowindow.open(map, marker);
     }
@@ -254,32 +256,35 @@ function removeAllChildNods(el:any) {
         }   
     }
 
-    const map = css`
-        width: 500px;
-        height : 500px;
-        `
-
+    const mapcss = css`
+    width:100%;
+    height:500px;
+    display:inline-block;
+    position:absolute;
+    overflow:hidden;
+    `
+    
     return useObserver(()=>(
-        <div>
         <Display>
-        <h2> 지도 보기  </h2>
+        
+        <h2> 나와 가까운 스터디 장소  </h2>
         <h3> 현 주소 : {UserDetailStore.data.city} / {UserDetailStore.data.town} </h3> 
-        <div id="map" css={map}></div>
-        <div id="menu_wrap">
-        <div >
+        <div className="map_wrap">
+        <div id="map" css={mapcss}></div>
+        <div id="menu_wrap" className="bg_white">
+        <div className="option">
             <div>
-                <form onSubmit={()=>{ searchPlaces()}} >
-                     키워드 : <input type="text" id="keyword"/> 
-                    <button type="submit">검색하기</button> 
-                </form>
+               <button onClick={()=> {searchPlaces(1)}}>카페 검색</button> 
+               <button onClick={()=> {searchPlaces(2)}}>스터디룸 검색</button>
             </div>
         </div>
         <hr />
         <ul id="placesList" ></ul>
-        <div  id="pagination"></div>
+        <div id="pagination"></div>
+
+        </div>
         </div>
         </Display>
-        </div>
     ))
 }
 export default MapView

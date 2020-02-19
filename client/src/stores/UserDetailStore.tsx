@@ -52,7 +52,7 @@ const UserDetailStore: UserDetailStoreType = observable({
   },
 
   goUserInfo(userId: number, history:H.History){
-    history.push(`/UserInfopage/${userId}`)
+    history.push(`/UserInfoPage/${userId}`)
   },
 
   async userInfo(userId : number){
