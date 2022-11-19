@@ -29,7 +29,7 @@
     "react-js-pagination": "^3.0.3",
     "react-kakao-maps": "Musma/react-kakao-maps#0.0.1",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "3.3.0",
+    "react-scripts": "5.0.1",
     "react-super-responsive-table": "^5.1.1",
     "typescript": "~3.7.2"
   },
